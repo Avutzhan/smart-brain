@@ -51,20 +51,33 @@ class App extends Component {
   componentDidMount() {
     const token = window.sessionStorage.getItem('token');
     if (token) {
-      fetch('http://localhost:3000/singin', {
-        method: 'post',
+      fetch('http://localhost:3000/signin', {
+        method: 'POST',
         headers: {
-          'Content-type': 'application/json',
+          'Content-Type': 'application/json',
           'Authorization': token
         }
       })
-          .then(resp => resp.json())
-          .then(data => {
-            if (data && data.id) {
-              console.log('success we need to get user profile')
-            }
-          })
-          .catch(console.log)
+        .then(response => response.json())
+        .then(data => {
+          if (data && data.id) {
+            fetch(`http://localhost:3000/profile/${data.id}`, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token
+              }
+            })
+            .then(response => response.json())
+            .then(user => {
+              if (user && user.email) {
+                this.loadUser(user)
+                this.onRouteChange('home');
+              }
+            })
+          }
+        })
+        .catch(console.log)
     }
   }
 
